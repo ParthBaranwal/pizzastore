@@ -3,6 +3,7 @@ package com.example.pizzastore.dto;
 import com.example.pizzastore.model.BeverageSize;
 import com.example.pizzastore.model.CrustType;
 import com.example.pizzastore.model.PizzaSize;
+import com.example.pizzastore.model.Products;
 import com.fasterxml.jackson.annotation.JsonInclude;
 
 import java.math.BigDecimal;
@@ -18,15 +19,17 @@ public class ProductResponseDTO {
     private List<PizzaSize> availablePizzaSizes;
     private List<CrustType> availableCrustTypes;
     private List<BeverageSize> availableBeverageSizes;
+    private List<ToppingDTO> toppings;
 
     // Constructor for Pizza
-    public ProductResponseDTO(Long id, String name, BigDecimal price, String description, List<PizzaSize> availablePizzaSizes, List<CrustType> availableCrustTypes) {
+    public ProductResponseDTO(Long id, String name, BigDecimal price, String description, List<PizzaSize> availablePizzaSizes, List<CrustType> availableCrustTypes,List<ToppingDTO> toppings) {
         this.id = id;
         this.name = name;
         this.price = price;
         this.description = description;
         this.availablePizzaSizes = availablePizzaSizes;
         this.availableCrustTypes = availableCrustTypes;
+        this.toppings = toppings;
     }
 
     // Constructor for Beverage
@@ -94,5 +97,13 @@ public class ProductResponseDTO {
 
     public void setAvailableBeverageSizes(List<BeverageSize> availableBeverageSizes) {
         this.availableBeverageSizes = availableBeverageSizes;
+    }
+
+    public List<ToppingDTO> getToppings() {
+        return toppings;
+    }
+
+    public void setToppings(List<ToppingDTO> toppings) {
+        this.toppings = toppings;
     }
 }
