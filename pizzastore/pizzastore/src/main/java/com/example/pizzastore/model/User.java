@@ -1,81 +1,72 @@
 package com.example.pizzastore.model;
 
 import jakarta.persistence.*;
-import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Pattern;
-import jakarta.validation.constraints.Size;
+import java.util.Set;
 
 @Entity
-@Table(name = "user")
+@Table(name = "Users")
 public class User {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long userId;
+    private Long id;
 
-
-    private String userName;
-
-    @Email(message = "Invalid email address")
+    private String username;
     private String email;
-
-    @Pattern(regexp = "\\d{10}", message = "Phone number must be 10 digits")
-    private String phoneNumber;
-
-    // Custom annotation for password validation
-    @Size(min = 8, message = "Password must be at least 8 characters long")
-    @Pattern(
-            regexp = "^(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?#&])[A-Za-z\\d@$!%*?#&]+$",
-            message = "Password must contain at least one uppercase letter, one number, and one special character"
-    )
     private String password;
+    private String address;
+    @OneToMany(mappedBy = "user")
+    private Set<Order> orders;
 
-    // Getters and setters
-
-    public Long getUserId() {
-        return userId;
+    // Constructors, Getters, and Setters
+    public User() {
     }
 
-    public void setUserId(Long userId) {
-        this.userId = userId;
+    public Long getId() {
+        return id;
     }
 
-    public  String getUserName() {
-        return userName;
+    public void setId(Long id) {
+        this.id = id;
     }
 
-    public void setUserName ( String userName) {
-        this.userName = userName;
+    public String getUsername() {
+        return username;
     }
 
-    public @Pattern(regexp = "\\d{10}", message = "Phone number must be 10 digits") String getPhoneNumber() {
-        return phoneNumber;
+    public void setUsername(String username) {
+        this.username = username;
     }
 
-    public void setPhoneNumber(@Pattern(regexp = "\\d{10}", message = "Phone number must be 10 digits") String phoneNumber) {
-        this.phoneNumber = phoneNumber;
-    }
-
-    public @Email(message = "Invalid email address") String getEmail() {
+    public String getEmail() {
         return email;
     }
 
-    public void setEmail(@Email(message = "Invalid email address") String email) {
+    public void setEmail(String email) {
         this.email = email;
     }
 
-    public @Size(min = 8, message = "Password must be at least 8 characters long") @Pattern(
-            regexp = "^(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?#&])[A-Za-z\\d@$!%*?#&]+$",
-            message = "Password must contain at least one uppercase letter, one number, and one special character"
-    ) String getPassword() {
+    public String getPassword() {
         return password;
     }
 
-    public void setPassword(@Size(min = 8, message = "Password must be at least 8 characters long") @Pattern(
-            regexp = "^(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]+$",
-            message = "Password must contain at least one uppercase letter, one number, and one special character"
-    ) String password) {
+    public void setPassword(String password) {
         this.password = password;
     }
-    // ...
+
+    public Set<Order> getOrders() {
+        return orders;
+    }
+
+    public void setOrders(Set<Order> orders) {
+        this.orders = orders;
+    }
+
+    public String getAddress() {
+        return address;
+    }
+
+    public void setAddress(String address) {
+        this.address = address;
+    }
 }
