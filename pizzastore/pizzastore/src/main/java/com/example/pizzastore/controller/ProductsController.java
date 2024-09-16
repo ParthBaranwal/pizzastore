@@ -10,6 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/products")
@@ -32,8 +33,16 @@ public class ProductsController {
 
     @GetMapping("/{id}")
     public ResponseEntity<?> getProductById(@PathVariable Long id) {
-        Products product = productsService.getProductById(id)
-                .orElseThrow(() -> new RuntimeException("Product not found with id " + id));
+        Optional<Products> productOpt = productsService.getProductById(id);
+
+
+        // Check if product was found or if it was filtered out because it was a topping
+        if (productOpt.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.OK)
+                    .body("product not available or cannot be viewed individually");
+        }
+
+        Products product = productOpt.get();
 
         if (product.getCategory() == Category.PIZZA || product.getCategory() == Category.BEVERAGE) {
             // Call the service method to get product details
