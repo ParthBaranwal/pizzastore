@@ -1,30 +1,39 @@
 package com.example.pizzastore.model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import java.math.BigDecimal;
 
 @Entity
-@Table(name = "OrderItems")
-public class OrderItem {
+@Table(name = "CartItems")
+public class CartItem {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @ManyToOne
-    @JoinColumn(name = "order_id")
-    private Order order;
-
-    @ManyToOne
     @JoinColumn(name = "product_id")
     private Products product;
 
     private int quantity;
+
     private BigDecimal totalPrice;
 
-    // Constructors, Getters, and Setters
-    public OrderItem() {
+    @ManyToOne
+    @JoinColumn(name = "cart_id")
+    @JsonBackReference
+    private Cart cart;
+
+    public CartItem() {}
+
+    public CartItem(Products product, int quantity) {
+        this.product = product;
+        this.quantity = quantity;
+        this.totalPrice = product.getPrice().multiply(BigDecimal.valueOf(quantity));
     }
+
+    // Getters and Setters
 
     public Long getId() {
         return id;
@@ -32,14 +41,6 @@ public class OrderItem {
 
     public void setId(Long id) {
         this.id = id;
-    }
-
-    public Order getOrder() {
-        return order;
-    }
-
-    public void setOrder(Order order) {
-        this.order = order;
     }
 
     public Products getProduct() {
@@ -64,5 +65,13 @@ public class OrderItem {
 
     public void setTotalPrice(BigDecimal totalPrice) {
         this.totalPrice = totalPrice;
+    }
+
+    public Cart getCart() {
+        return cart;
+    }
+
+    public void setCart(Cart cart) {
+        this.cart = cart;
     }
 }
