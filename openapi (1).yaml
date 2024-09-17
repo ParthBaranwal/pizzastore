@@ -1,0 +1,467 @@
+openapi: 3.0.1
+info:
+  title: OpenAPI definition
+  version: v0
+servers:
+- url: http://localhost:8080
+  description: Generated server url
+paths:
+  "/users/{id}":
+    get:
+      tags:
+      - user-controller
+      operationId: getUserById
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        '200':
+          description: OK
+          content:
+            "*/*":
+              schema:
+                "$ref": "#/components/schemas/User"
+    put:
+      tags:
+      - user-controller
+      operationId: updateUser
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      requestBody:
+        content:
+          application/json:
+            schema:
+              "$ref": "#/components/schemas/User"
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            "*/*":
+              schema:
+                "$ref": "#/components/schemas/User"
+    delete:
+      tags:
+      - user-controller
+      operationId: deleteUser
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        '200':
+          description: OK
+  "/api/toppings/{id}":
+    get:
+      tags:
+      - topping-controller
+      operationId: getToppingById
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        '200':
+          description: OK
+          content:
+            "*/*":
+              schema:
+                "$ref": "#/components/schemas/Topping"
+    put:
+      tags:
+      - topping-controller
+      operationId: updateTopping
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      requestBody:
+        content:
+          application/json:
+            schema:
+              "$ref": "#/components/schemas/Topping"
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            "*/*":
+              schema:
+                "$ref": "#/components/schemas/Topping"
+    delete:
+      tags:
+      - topping-controller
+      operationId: deleteTopping
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        '200':
+          description: OK
+  "/api/products/{id}":
+    get:
+      tags:
+      - products-controller
+      operationId: getProductById
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        '200':
+          description: OK
+          content:
+            "*/*":
+              schema:
+                type: object
+    put:
+      tags:
+      - products-controller
+      operationId: updateProduct
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      requestBody:
+        content:
+          application/json:
+            schema:
+              "$ref": "#/components/schemas/Products"
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            "*/*":
+              schema:
+                "$ref": "#/components/schemas/Products"
+    delete:
+      tags:
+      - products-controller
+      operationId: deleteProduct
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        '200':
+          description: OK
+  "/users/register":
+    post:
+      tags:
+      - user-controller
+      operationId: registerUser
+      requestBody:
+        content:
+          application/json:
+            schema:
+              "$ref": "#/components/schemas/User"
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            "*/*":
+              schema:
+                type: string
+  "/api/toppings":
+    get:
+      tags:
+      - topping-controller
+      operationId: getAllToppings
+      responses:
+        '200':
+          description: OK
+          content:
+            "*/*":
+              schema:
+                type: array
+                items:
+                  "$ref": "#/components/schemas/Topping"
+    post:
+      tags:
+      - topping-controller
+      operationId: createTopping
+      requestBody:
+        content:
+          application/json:
+            schema:
+              "$ref": "#/components/schemas/Topping"
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            "*/*":
+              schema:
+                "$ref": "#/components/schemas/Topping"
+  "/api/products":
+    get:
+      tags:
+      - products-controller
+      operationId: getAllProducts
+      responses:
+        '200':
+          description: OK
+          content:
+            "*/*":
+              schema:
+                type: array
+                items:
+                  "$ref": "#/components/schemas/Products"
+    post:
+      tags:
+      - products-controller
+      operationId: createProduct
+      requestBody:
+        content:
+          application/json:
+            schema:
+              "$ref": "#/components/schemas/Products"
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            "*/*":
+              schema:
+                "$ref": "#/components/schemas/Products"
+  "/users":
+    get:
+      tags:
+      - user-controller
+      operationId: getAllUsers
+      responses:
+        '200':
+          description: OK
+          content:
+            "*/*":
+              schema:
+                type: array
+                items:
+                  "$ref": "#/components/schemas/User"
+  "/api/products/sides":
+    get:
+      tags:
+      - products-controller
+      operationId: getAllSides
+      responses:
+        '200':
+          description: OK
+          content:
+            "*/*":
+              schema:
+                type: array
+                items:
+                  "$ref": "#/components/schemas/Products"
+  "/api/products/pizzas":
+    get:
+      tags:
+      - products-controller
+      operationId: getAllPizzas
+      responses:
+        '200':
+          description: OK
+          content:
+            "*/*":
+              schema:
+                type: array
+                items:
+                  "$ref": "#/components/schemas/Products"
+  "/api/products/beverages":
+    get:
+      tags:
+      - products-controller
+      operationId: getAllBeverages
+      responses:
+        '200':
+          description: OK
+          content:
+            "*/*":
+              schema:
+                type: array
+                items:
+                  "$ref": "#/components/schemas/Products"
+components:
+  schemas:
+    User:
+      type: object
+      properties:
+        userId:
+          type: integer
+          format: int64
+        userName:
+          type: string
+        email:
+          type: string
+        phoneNumber:
+          pattern: "\\d{10}"
+          type: string
+        password:
+          maxLength: 2147483647
+          minLength: 8
+          pattern: "^(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?#&])[A-Za-z\\d@$!%*?#&]+$"
+          type: string
+    Topping:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        name:
+          type: string
+    Products:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        name:
+          type: string
+        price:
+          type: number
+        category:
+          type: string
+          enum:
+          - PIZZA
+          - BEVERAGE
+          - SIDE
+        description:
+          type: string
+        availableToppings:
+          type: array
+          items:
+            "$ref": "#/components/schemas/Topping"
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+    OrderItem:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        productId:
+          type: integer
+        quantity:
+          type: integer
+        price:
+          type: number
+    Orders:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        userId:
+          type: integer
+        orderItems:
+          type: array
+          items:
+            "$ref": "#/components/schemas/OrderItem"
+        totalAmount:
+          type: number
+        orderTime:
+          type: string
+          format: date-time
+        deliveryId:
+          type: integer
+        paymentId:
+          type: integer
+    Payment:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        amount:
+          type: number
+        paymentMethod:
+          type: string
+          enum:
+          - CARD
+          - UPI
+          - COD
+          - PAYLATER
+        paymentTime:
+          type: string
+          format: date-time
+    Address:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        street:
+          type: string
+        city:
+          type: string
+        state:
+          type: string
+        zipCode:
+          type: string
+    Delivery:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        addressId:
+          type: integer
+        deliveryTime:
+          type: string
+          format: date-time
+        status:
+          type: string
+          enum:
+          - PENDING
+          - OUT_FOR_DELIVERY
+          - DELIVERED
+    Feedback:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        userId:
+          type: integer
+        orderId:
+          type: integer
+        rating:
+          type: integer
+        comment:
+          type: string
