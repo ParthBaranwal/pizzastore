@@ -1,5 +1,7 @@
 package com.example.pizzastore.controller;
 
+import com.example.pizzastore.dto.UserRegisterRequest;
+import com.example.pizzastore.dto.UserUpdateRequest;
 import com.example.pizzastore.model.User;
 import com.example.pizzastore.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,9 +30,9 @@ public class UserController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity<String> registerUser(@RequestBody User user) {
+    public ResponseEntity<String> registerUser(@RequestBody UserRegisterRequest userRegisterRequest) {
         try {
-            String response = userService.registerUser(user);
+            String response = userService.registerUser(userRegisterRequest);
             return ResponseEntity.ok(response);
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
@@ -38,9 +40,12 @@ public class UserController {
     }
 
     @PutMapping("/{userId}")
-    public ResponseEntity<User> updateUser(@PathVariable Long userId, @RequestBody User updatedUser) {
-        User user = userService.updateUser(userId, updatedUser);
-        return ResponseEntity.ok(user);
+    public ResponseEntity<User> updateUser(
+            @PathVariable Long userId,
+            @RequestBody UserUpdateRequest userUpdateRequest
+    ) {
+        User updatedUser = userService.updateUser(userId, userUpdateRequest);
+        return ResponseEntity.ok(updatedUser);
     }
 
     @DeleteMapping("/{userId}")

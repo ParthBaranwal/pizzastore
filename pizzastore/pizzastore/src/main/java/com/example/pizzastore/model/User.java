@@ -19,7 +19,15 @@ public class User {
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference
-    private List<Address> addresses;
+    private List<Address> addresses = new ArrayList<>();
+
+    public List<Address> getAddresses() {
+        return addresses;
+    }
+
+    public void setAddresses(List<Address> addresses) {
+        this.addresses = addresses;
+    }
 
     public Long getUserId() {
         return userId;
@@ -61,13 +69,7 @@ public class User {
         this.password = password;
     }
 
-    public List<Address> getAddresses() {
-        return addresses;
-    }
 
-    public void setAddresses(List<Address> addresses) {
-        this.addresses = addresses;
-    }
 }
 
 

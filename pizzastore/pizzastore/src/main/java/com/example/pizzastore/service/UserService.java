@@ -1,5 +1,8 @@
 package com.example.pizzastore.service;
 
+import com.example.pizzastore.dto.AddressRequest;
+import com.example.pizzastore.dto.UserRegisterRequest;
+import com.example.pizzastore.dto.UserUpdateRequest;
 import com.example.pizzastore.model.Address;
 import com.example.pizzastore.model.User;
 import com.example.pizzastore.repository.UserRepository;
@@ -28,74 +31,52 @@ public class UserService {
         return userRepository.findById(userId);
     }
 
-    public String registerUser(User user) {
-        if (user.getUserId() != null) {
-            throw new IllegalArgumentException("User ID should not be provided in the request.");
-        }
-
-        if (userRepository.findByUserName(user.getUserName()).isPresent()) {
-            return "User already exists";
-        }
-
+    public String registerUser(UserRegisterRequest userRegisterRequest) {
+        User user = new User();
+        user.setUserName(userRegisterRequest.getUserName());
+        user.setPassword(userRegisterRequest.getPassword());
+        // Save user to repository
         userRepository.save(user);
-        return "User registered successfully";
+        return "User registered successfully!";
     }
 
 
 
-        public User updateUser(Long userId, User updatedUser) {
-            User existingUser = userRepository.findById(userId)
-                    .orElseThrow(() -> new EntityNotFoundException("User not found"));
+    public User updateUser(Long userId, UserUpdateRequest userUpdateRequest) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new EntityNotFoundException("User not found"));
 
-            if (updatedUser.getUserName() != null) {
-                existingUser.setUserName(updatedUser.getUserName());
-            }
-            if (updatedUser.getEmail() != null) {
-                existingUser.setEmail(updatedUser.getEmail());
-            }
-            if (updatedUser.getPhoneNumber() != null) {
-                existingUser.setPhoneNumber(updatedUser.getPhoneNumber());
-            }
-            if (updatedUser.getPassword() != null) {
-                existingUser.setPassword(updatedUser.getPassword());
-            }
-
-            // Handle address updates
-            if (updatedUser.getAddresses() != null) {
-                List<Address> existingAddresses = existingUser.getAddresses();
-                List<Address> updatedAddresses = updatedUser.getAddresses();
-
-                // Update existing addresses or add new ones
-                for (Address updatedAddress : updatedAddresses) {
-                    if (updatedAddress.getId() != null) {
-                        Address existingAddress = existingAddresses.stream()
-                                .filter(address -> address.getId().equals(updatedAddress.getId()))
-                                .findFirst()
-                                .orElse(null);
-                        if (existingAddress != null) {
-                            existingAddress.setStreet(updatedAddress.getStreet());
-                            existingAddress.setCity(updatedAddress.getCity());
-                            existingAddress.setState(updatedAddress.getState());
-                            existingAddress.setPostalCode(updatedAddress.getPostalCode());
-                            existingAddress.setCountry(updatedAddress.getCountry());
-                        } else {
-                            updatedAddress.setUser(existingUser);
-                            existingAddresses.add(updatedAddress);
-                        }
-                    } else {
-                        updatedAddress.setUser(existingUser);
-                        existingAddresses.add(updatedAddress);
-                    }
-                }
-
-                // Remove addresses that are no longer present
-                existingAddresses.removeIf(existingAddress -> updatedAddresses.stream()
-                        .noneMatch(updatedAddress -> updatedAddress.getId() != null &&
-                                updatedAddress.getId().equals(existingAddress.getId())));
-            }
-
-            return userRepository.save(existingUser);
+        // Update fields if they are not null
+        if (userUpdateRequest.getUserName() != null) {
+            user.setUserName(userUpdateRequest.getUserName());
         }
+        if (userUpdateRequest.getEmail() != null) {
+            user.setEmail(userUpdateRequest.getEmail());
+        }
+        if (userUpdateRequest.getPhoneNumber() != null) {
+            user.setPhoneNumber(userUpdateRequest.getPhoneNumber());
+        }
+        if (userUpdateRequest.getPassword() != null) {
+            user.setPassword(userUpdateRequest.getPassword());
+        }
+
+        // Handle addresses if provided
+        user.getAddresses().clear();
+        if (userUpdateRequest.getAddresses() != null) {
+            for (AddressRequest addressRequest : userUpdateRequest.getAddresses()) {
+                Address address = new Address();
+                address.setStreet(addressRequest.getStreet());
+                address.setCity(addressRequest.getCity());
+                address.setState(addressRequest.getState());
+                address.setZipCode(addressRequest.getZipCode());
+                address.setUser(user); // Set the user
+                user.getAddresses().add(address);
+            }
+        }
+
+        return userRepository.save(user);
+    }
+
 
 
 

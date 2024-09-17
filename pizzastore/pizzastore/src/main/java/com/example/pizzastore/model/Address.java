@@ -12,8 +12,15 @@ public class Address {
     private String street;
     private String city;
     private String state;
-    private String postalCode;
-    private String country;
+    private String zipCode;
+
+    public String getZipCode() {
+        return zipCode;
+    }
+
+    public void setZipCode(String zipCode) {
+        this.zipCode = zipCode;
+    }
 
     @ManyToOne
     @JoinColumn(name = "user_id")
@@ -52,21 +59,7 @@ public class Address {
         this.state = state;
     }
 
-    public String getPostalCode() {
-        return postalCode;
-    }
 
-    public void setPostalCode(String postalCode) {
-        this.postalCode = postalCode;
-    }
-
-    public String getCountry() {
-        return country;
-    }
-
-    public void setCountry(String country) {
-        this.country = country;
-    }
 
     public User getUser() {
         return user;
