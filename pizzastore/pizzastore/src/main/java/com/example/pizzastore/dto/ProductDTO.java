@@ -1,3 +1,4 @@
+
 package com.example.pizzastore.dto;
 
 import java.math.BigDecimal;
@@ -14,10 +15,7 @@ public class ProductDTO {
     // Getters and setters
 
 
-    public Long getId(
-
-
-    ) {
+    public Long getId() {
         return id;
     }
 
