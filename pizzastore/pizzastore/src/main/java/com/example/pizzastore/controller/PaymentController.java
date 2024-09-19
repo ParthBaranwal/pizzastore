@@ -31,9 +31,14 @@ public class PaymentController {
             throw new IllegalArgumentException("Order not found");
         }
 
+        // Check if delivery address is set
+        if (order.getDeliveryAddress() == null) {
+            throw new IllegalArgumentException("Delivery address is not set. Payment cannot be processed.");
+        }
+
         Payment payment = new Payment();
         payment.setOrder(order);
-        payment.setAmount(order.getTotalAmount()); // Directly use BigDecimal
+        payment.setAmount(order.getTotalAmount());
         payment.setPaymentMethod(paymentRequest.getPaymentMethod());
 
         PaymentDetails details = paymentRequest.getPaymentDetails();
