@@ -120,6 +120,35 @@ paths:
       responses:
         '200':
           description: OK
+  /api/orders/{orderId}/status:
+    put:
+      tags:
+        - order-controller
+      operationId: updateOrderDeliveryStatus
+      parameters:
+        - name: orderId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+        - name: deliveryStatus
+          in: query
+          required: true
+          schema:
+            type: string
+            enum:
+              - PENDING
+              - PREPARING
+              - OUT_FOR_DELIVERY
+              - DELIVERED
+      responses:
+        '200':
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: string
   /api/cart/update:
     put:
       tags:
@@ -777,6 +806,13 @@ components:
             - UNPAID
         deliveryAddress:
           $ref: '#/components/schemas/Address'
+        deliveryStatus:
+          type: string
+          enum:
+            - PENDING
+            - PREPARING
+            - OUT_FOR_DELIVERY
+            - DELIVERED
     CartDTO:
       type: object
       properties:
