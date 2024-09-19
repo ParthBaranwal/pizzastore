@@ -75,7 +75,8 @@ public class OrderService {
         order.setTotalAmount(totalAmount);
 
         // Set the payment status before saving
-        order.setPaymentStatus(Payment.PaymentStatus.PENDING); // Example default status
+        order.setPaymentStatus(Payment.PaymentStatus.PENDING);
+        order.setDeliveryStatus(Orders.DeliveryStatus.PENDING);// Example default status
 
         List<OrderItem> orderItems = cart.getCartItems().stream()
                 .map(cartItem -> {
@@ -107,6 +108,21 @@ public class OrderService {
                 .orElseThrow(() -> new RuntimeException("Order not found"));
 
         order.setPaymentStatus(paymentStatus);
+
+        // If payment is completed, set delivery status to PREPARING
+        if (paymentStatus == Payment.PaymentStatus.PAID) {
+            order.setDeliveryStatus(Orders.DeliveryStatus.PREPARING);
+        }
+
+        orderRepository.save(order);
+    }
+    public void updateOrderDeliveryStatus(Long orderId, Orders.DeliveryStatus deliveryStatus) {
+        Orders order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new RuntimeException("Order not found"));
+
+        // Update the delivery status
+        order.setDeliveryStatus(deliveryStatus);
+
         orderRepository.save(order);
     }
 }
