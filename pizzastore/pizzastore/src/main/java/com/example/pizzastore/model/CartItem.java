@@ -25,6 +25,15 @@ public class CartItem {
     @JsonBackReference
     private Cart cart;
 
+    @Enumerated(EnumType.STRING)
+    private PizzaSize pizzaSize;
+
+    @Enumerated(EnumType.STRING)
+    private CrustType crustType;
+
+    @Enumerated(EnumType.STRING)
+    private BeverageSize beverageSize;
+
     public CartItem() {}
 
     public CartItem(Products product, int quantity) {
@@ -73,5 +82,29 @@ public class CartItem {
 
     public void setCart(Cart cart) {
         this.cart = cart;
+    }
+
+    public PizzaSize getPizzaSize() {
+        return pizzaSize;
+    }
+
+    public void setPizzaSize(PizzaSize pizzaSize) {
+        this.pizzaSize = pizzaSize;
+    }
+
+    public CrustType getCrustType() {
+        return crustType;
+    }
+
+    public void setCrustType(CrustType crustType) {
+        this.crustType = crustType;
+    }
+
+    public BeverageSize getBeverageSize() {
+        return beverageSize;
+    }
+
+    public void setBeverageSize(BeverageSize beverageSize) {
+        this.beverageSize = beverageSize;
     }
 }

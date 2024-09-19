@@ -4,7 +4,7 @@ public class UserRegisterRequest {
     private String userName;
     private String password;
 
-    // Getters and setters
+
 
     public String getUserName() {
         return userName;

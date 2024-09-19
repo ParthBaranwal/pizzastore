@@ -9,7 +9,7 @@ public class UserUpdateRequest {
     private String password;
     private List<AddressRequest> addresses;
 
-    // Getters and setters
+
 
     public String getUserName() {
         return userName;
