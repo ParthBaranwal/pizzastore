@@ -2,7 +2,6 @@ package com.example.pizzastore.model;
 
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
-
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Date;
@@ -36,7 +35,12 @@ public class Orders {
     @JoinColumn(name = "address_id")
     private Address deliveryAddress;
 
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private DeliveryStatus deliveryStatus = DeliveryStatus.PENDING;
+
     // Getters and Setters
+
     public Address getDeliveryAddress() {
         return deliveryAddress;
     }
@@ -91,5 +95,20 @@ public class Orders {
 
     public void setPaymentStatus(Payment.PaymentStatus paymentStatus) {
         this.paymentStatus = paymentStatus;
+    }
+
+    public DeliveryStatus getDeliveryStatus() {
+        return deliveryStatus;
+    }
+
+    public void setDeliveryStatus(DeliveryStatus deliveryStatus) {
+        this.deliveryStatus = deliveryStatus;
+    }
+
+    public enum DeliveryStatus {
+        PENDING,
+        PREPARING,
+        OUT_FOR_DELIVERY,
+        DELIVERED
     }
 }

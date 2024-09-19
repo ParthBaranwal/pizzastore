@@ -34,6 +34,19 @@ public class OrderController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Error: " + e.getMessage());
         }
     }
+    @PutMapping("/{orderId}/status")
+    public ResponseEntity<String> updateOrderDeliveryStatus(
+            @PathVariable Long orderId,
+            @RequestParam Orders.DeliveryStatus deliveryStatus) {
+
+        try {
+            orderService.updateOrderDeliveryStatus(orderId, deliveryStatus);
+            return ResponseEntity.ok("Delivery status updated successfully");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Error: " + e.getMessage());
+        }
+    }
+
 
     @GetMapping
     public ResponseEntity<List<Orders>> getAllOrders() {
