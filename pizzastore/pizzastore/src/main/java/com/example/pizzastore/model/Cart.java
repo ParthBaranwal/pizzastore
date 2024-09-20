@@ -19,7 +19,7 @@ public class Cart {
 
 
     @OneToOne
-    @JoinColumn(name = "user_id", referencedColumnName = "userId", nullable = false, unique = true)
+    @JoinColumn(name = "user_id", referencedColumnName = "id", nullable = false, unique = true)
     private User user;
 
     public Cart() {}
