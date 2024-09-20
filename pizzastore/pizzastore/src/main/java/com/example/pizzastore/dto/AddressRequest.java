@@ -1,5 +1,8 @@
 package com.example.pizzastore.dto;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class AddressRequest {
     private String street;
     private String city;
@@ -7,7 +10,15 @@ public class AddressRequest {
     private String zipCode;
 
     // Getters and setters
+    public AddressRequest() {
+    }
 
+    public AddressRequest(String street, String city, String state, String zipCode) {
+        this.street = street;
+        this.city = city;
+        this.state = state;
+        this.zipCode = zipCode;
+    }
     public String getStreet() {
         return street;
     }

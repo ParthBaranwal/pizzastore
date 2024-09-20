@@ -1,86 +1,182 @@
 package com.example.pizzastore.service;
 
 import com.example.pizzastore.dto.AddressRequest;
-import com.example.pizzastore.dto.UserRegisterRequest;
-import com.example.pizzastore.dto.UserUpdateRequest;
-import com.example.pizzastore.model.Address;
-import com.example.pizzastore.model.User;
+import com.example.pizzastore.dto.UserDTO;
+import com.example.pizzastore.model.*;
+import com.example.pizzastore.repository.TokenRepository;
 import com.example.pizzastore.repository.UserRepository;
-import com.example.pizzastore.repository.AddressRepository;
-import jakarta.persistence.EntityNotFoundException;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class UserService {
 
-    @Autowired
-    private UserRepository userRepository;
+    private final UserRepository repository;
+    private final PasswordEncoder passwordEncoder;
+    private final JwtService jwtService;
+    private final TokenRepository tokenRepository;
 
-    @Autowired
-    private AddressRepository addressRepository;
-
-    public List<User> getAllUsers(){
-        return userRepository.findAll();
+    public UserService(UserRepository repository, PasswordEncoder passwordEncoder, JwtService jwtService, TokenRepository tokenRepository) {
+        this.repository = repository;
+        this.passwordEncoder = passwordEncoder;
+        this.jwtService = jwtService;
+        this.tokenRepository = tokenRepository;
     }
 
-    public Optional<User> getUserById(Long userId){
-        return userRepository.findById(userId);
-    }
+    public AuthenticationResponse register(UserDTO request) {
+        if (repository.findByUsername(request.getUsername()).isPresent()) {
+            return new AuthenticationResponse(null, null, "User already exists");
+        }
 
-    public String registerUser(UserRegisterRequest userRegisterRequest) {
         User user = new User();
-        user.setUserName(userRegisterRequest.getUserName());
-        user.setPassword(userRegisterRequest.getPassword());
-        // Save user to repository
-        userRepository.save(user);
-        return "User registered successfully!";
+        user.setFirstName(request.getFirstName());
+        user.setLastName(request.getLastName());
+        user.setUsername(request.getUsername());
+        user.setPassword(passwordEncoder.encode(request.getPassword()));
+        user.setEmail(request.getEmail());
+        user.setPhoneNumber(request.getPhoneNumber());
+        user.setRole(Role.USER);
+
+        User savedUser = repository.save(user);
+
+        List<Address> addresses = request.getAddresses().stream()
+                .map(dto -> {
+                    Address address = new Address();
+                    address.setStreet(dto.getStreet());
+                    address.setCity(dto.getCity());
+                    address.setState(dto.getState());
+                    address.setZipCode(dto.getZipCode());
+                    address.setUser(savedUser); // Set the user for address
+                    return address;
+                }).collect(Collectors.toList());
+
+        savedUser.setAddresses(addresses);
+        user = repository.save(savedUser);
+
+        String accessToken = jwtService.generateAccessToken(user);
+        String refreshToken = jwtService.generateRefreshToken(user);
+
+        saveUserToken(accessToken, refreshToken, user);
+
+        return new AuthenticationResponse(accessToken, refreshToken, "User registration was successful");
     }
 
-
-
-    public User updateUser(Long userId, UserUpdateRequest userUpdateRequest) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new EntityNotFoundException("User not found"));
-
-        // Update fields if they are not null
-        if (userUpdateRequest.getUserName() != null) {
-            user.setUserName(userUpdateRequest.getUserName());
-        }
-        if (userUpdateRequest.getEmail() != null) {
-            user.setEmail(userUpdateRequest.getEmail());
-        }
-        if (userUpdateRequest.getPhoneNumber() != null) {
-            user.setPhoneNumber(userUpdateRequest.getPhoneNumber());
-        }
-        if (userUpdateRequest.getPassword() != null) {
-            user.setPassword(userUpdateRequest.getPassword());
-        }
-
-        // Handle addresses if provided
-        user.getAddresses().clear();
-        if (userUpdateRequest.getAddresses() != null) {
-            for (AddressRequest addressRequest : userUpdateRequest.getAddresses()) {
-                Address address = new Address();
-                address.setStreet(addressRequest.getStreet());
-                address.setCity(addressRequest.getCity());
-                address.setState(addressRequest.getState());
-                address.setZipCode(addressRequest.getZipCode());
-                address.setUser(user); // Set the user
-                user.getAddresses().add(address);
-            }
-        }
-
-        return userRepository.save(user);
+    private void saveUserToken(String accessToken, String refreshToken, User user) {
+        Token token = new Token();
+        token.setAccessToken(accessToken);
+        token.setRefreshToken(refreshToken);
+        token.setLoggedOut(false);
+        token.setUser(user);
+        tokenRepository.save(token);
     }
 
+    public UserDTO getProfile() {
+        // Step 1: Get the currently authenticated user's username
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String username = authentication.getName(); // This will fetch the username from the JWT token
+
+        // Step 2: Fetch the user by username from the database
+        User user = repository.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("User not found"));
 
 
+        UserDTO userProfileDTO = new UserDTO();
+        userProfileDTO.setFirstName(user.getFirstName());
+        userProfileDTO.setLastName(user.getLastName());
+        userProfileDTO.setUsername(user.getUsername());
+        userProfileDTO.setEmail(user.getEmail());
+        userProfileDTO.setPhoneNumber(user.getPhoneNumber());
 
-    public void deleteUser(Long userId){
-        userRepository.deleteById(userId);
+        List<AddressRequest> addressDTOs = user.getAddresses().stream().map(address -> {
+            AddressRequest addressDTO = new AddressRequest();
+            addressDTO.setStreet(address.getStreet());
+            addressDTO.setCity(address.getCity());
+            addressDTO.setState(address.getState());
+            addressDTO.setZipCode(address.getZipCode());
+            return addressDTO;
+        }).collect(Collectors.toList());
+
+        userProfileDTO.setAddresses(addressDTOs);
+
+        return userProfileDTO;
     }
+
+    public List<User> getAllNonAdminUsers() {
+        return repository.findAll()
+                .stream()
+                .filter(user -> user.getRole() != Role.ADMIN)
+                .collect(Collectors.toList());
+    }
+
+//    public UserDTO updateUser(UserDTO updatedUserDTO) {
+//        // Get the current logged-in user
+//        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+//        User currentUser = repository.findByUsername(username)
+//                .orElseThrow(() -> new RuntimeException("User not found"));
+//
+//        // Update user details
+//        if (updatedUserDTO.getFirstName() != null) {
+//            currentUser.setFirstName(updatedUserDTO.getFirstName());
+//        }
+//        if (updatedUserDTO.getLastName() != null) {
+//            currentUser.setLastName(updatedUserDTO.getLastName());
+//        }
+//        if (updatedUserDTO.getEmail() != null) {
+//            currentUser.setEmail(updatedUserDTO.getEmail());
+//        }
+//        if (updatedUserDTO.getPhoneNumber() != null) {
+//            currentUser.setPhoneNumber(updatedUserDTO.getPhoneNumber());
+//        }
+//
+//        if (updatedUserDTO.getAddresses() != null) {
+//            List<Address> existingAddresses = currentUser.getAddresses();
+//
+//            // Remove addresses that are not in the updated list
+//            List<Address> addressesToRemove = existingAddresses.stream()
+//                    .filter(existingAddress -> updatedUserDTO.getAddresses().stream()
+//                            .noneMatch(updatedAddress -> updatedAddress.getId() != null && updatedAddress.getId().equals(existingAddress.getId())))
+//                    .collect(Collectors.toList());
+//
+//            addressesToRemove.forEach(address -> {
+//                address.setUser(null);
+//                // Optional: if you want to remove from DB, you can do it here
+//                // addressRepository.delete(address);
+//            });
+//
+//            // Update existing addresses and add new addresses
+//            List<Address> updatedAddresses = updatedUserDTO.getAddresses().stream()
+//                    .map(dto -> {
+//                        Address address;
+//                        if (dto.getId() != null) {
+//                            // Update existing address
+//                            address = existingAddresses.stream()
+//                                    .filter(a -> a.getId().equals(dto.getId()))
+//                                    .findFirst()
+//                                    .orElseThrow(() -> new RuntimeException("Address not found"));
+//                        } else {
+//                            // Create new address
+//                            address = new Address();
+//                        }
+//                        address.setStreet(dto.getStreet());
+//                        address.setCity(dto.getCity());
+//                        address.setState(dto.getState());
+//                        address.setZipCode(dto.getZipCode());
+//                        address.setUser(currentUser);
+//                        return address;
+//                    }).collect(Collectors.toList());
+//
+//            currentUser.setAddresses(updatedAddresses);
+//        }
+//
+//        // Save the updated user
+//        User updatedUser = repository.save(currentUser);
+//
+//        // Return updated user details as DTO
+//        return new UserDTO(updatedUser);
+//    }
 }
