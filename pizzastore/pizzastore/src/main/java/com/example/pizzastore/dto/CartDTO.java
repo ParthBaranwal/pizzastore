@@ -32,4 +32,6 @@ public class CartDTO {
     public void setTotalAmount(BigDecimal totalAmount) {
         this.totalAmount = totalAmount;
     }
+
+
 }

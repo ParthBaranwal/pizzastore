@@ -32,19 +32,21 @@ public class PaymentService {
     }
 
     public PaymentResponse processPayment(PaymentRequest paymentRequest) {
-        // Get the order DTO
-        OrderDTO orderDTO = orderService.getOrderById(paymentRequest.getOrderId());
-        if (orderDTO == null) {
+        // Assuming the method returns an Orders object
+        Orders order = orderService.getOrderById(paymentRequest.getOrderId());
+
+        if (order == null) {
             throw new IllegalArgumentException("Order not found");
         }
 
         // Check if delivery address is set
-        if (orderDTO.getDeliveryAddress() == null) {
+        if (order.getDeliveryAddress() == null) {
             throw new IllegalArgumentException("Delivery address is not set. Payment cannot be processed.");
         }
 
         Payment payment = new Payment();
-        payment.setAmount(orderDTO.getTotalAmount());
+        payment.setOrder(order);
+        payment.setAmount(order.getTotalAmount());
         payment.setPaymentMethod(paymentRequest.getPaymentMethod());
 
         PaymentDetails details = paymentRequest.getPaymentDetails();
@@ -80,9 +82,10 @@ public class PaymentService {
         Payment savedPayment = save(payment);
 
         // Update order payment status
-        orderService.updateOrderPaymentStatus(orderDTO.getId(), payment.getPaymentStatus());
+        orderService.updateOrderPaymentStatus(order.getId(), payment.getPaymentStatus());
 
         return new PaymentResponse(savedPayment.getId(), savedPayment.getPaymentStatus(), savedPayment.getPaymentTime());
     }
+
 
 }

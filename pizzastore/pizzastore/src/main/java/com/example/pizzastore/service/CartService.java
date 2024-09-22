@@ -93,6 +93,103 @@ public class CartService {
     }
 
     // Add a product to the cart
+//    public CartDTO addToCart(Long cartId, Long productId, int quantity, PizzaSize pizzaSize, CrustType crustType, BeverageSize beverageSize) {
+//        Optional<Cart> cartOpt = cartRepository.findById(cartId);
+//        if (!cartOpt.isPresent()) {
+//            throw new IllegalArgumentException("Cart not found");
+//        }
+//
+//        Cart cart = cartOpt.get();
+//        Optional<Products> productOpt = productsRepository.findById(productId);
+//        if (!productOpt.isPresent()) {
+//            throw new IllegalArgumentException("Product not found");
+//        }
+//
+//        Products product = productOpt.get(); // This is the first declaration of 'product'
+//        boolean itemExists = false;
+//
+////        for (CartItem item : cart.getCartItems()) {
+////            // Use 'item.getProduct()' to avoid shadowing 'product'
+////            if (item.getProduct().getId().equals(productId) &&
+////                    (product.getCategory() == Category.PIZZA && item.getPizzaSize() == pizzaSize && item.getCrustType() == crustType ||
+////                            product.getCategory() == Category.BEVERAGE && item.getBeverageSize() == beverageSize)) {
+////                item.setQuantity(item.getQuantity() + quantity);
+////                item.setTotalPrice(product.getPrice().multiply(BigDecimal.valueOf(item.getQuantity())));
+////                itemExists = true;
+////                break;
+////            }
+////        }
+//        for (CartItem item : cart.getCartItems()) {
+//            if (item.getProduct().getId().equals(productId)) {
+//                if (product.getCategory() == Category.PIZZA) {
+//                    if (item.getPizzaSize() == pizzaSize && item.getCrustType() == crustType) {
+//                        item.setQuantity(item.getQuantity() + quantity);
+//                        item.setTotalPrice(product.getPrice().multiply(BigDecimal.valueOf(item.getQuantity())));
+//                        itemExists = true;
+//                        break;
+//                    }
+//                } else if (product.getCategory() == Category.BEVERAGE) {
+//                    if (item.getBeverageSize() == beverageSize) {
+//                        item.setQuantity(item.getQuantity() + quantity);
+//                        item.setTotalPrice(product.getPrice().multiply(BigDecimal.valueOf(item.getQuantity())));
+//                        itemExists = true;
+//                        break;
+//                    }
+//                }
+//            }
+//        }
+//
+//        if (!itemExists) {
+//            CartItem newItem = new CartItem(product, quantity);
+//            newItem.setCart(cart);
+//            newItem.setPizzaSize(pizzaSize);
+//            newItem.setCrustType(crustType);
+//            newItem.setBeverageSize(beverageSize);
+//            cart.getCartItems().add(newItem);
+//        }
+//
+//        cart.setTotalAmount(cart.getCartItems().stream()
+//                .map(CartItem::getTotalPrice)
+//                .reduce(BigDecimal.ZERO, BigDecimal::add));
+//
+//        cartRepository.save(cart);
+//
+//        CartDTO cartDTO = new CartDTO();
+//       //cartDTO.setUserId(Long.valueOf(cart.getUser().getId())); // Convert Integer to Long
+//        cartDTO.setTotalAmount(cart.getTotalAmount());
+//
+//        List<CartItemDTO> cartItemDTOs = new ArrayList<>();
+//        for (CartItem cartItem : cart.getCartItems()) {
+//            CartItemDTO cartItemDTO = new CartItemDTO();
+//            cartItemDTO.setId(cartItem.getId());
+//            cartItemDTO.setQuantity(cartItem.getQuantity());
+//            cartItemDTO.setTotalPrice(cartItem.getTotalPrice());
+//
+//            ProductDTO productDTO = new ProductDTO();
+//            // Use 'product' here instead of redeclaring
+//            productDTO.setId(product.getId());
+//            productDTO.setName(product.getName());
+//            productDTO.setPrice(product.getPrice());
+//            productDTO.setCategory(product.getCategory().toString());
+//            productDTO.setDescription(product.getDescription());
+//
+//            cartItemDTO.setProduct(productDTO);
+//
+//            if (product.getCategory() == Category.PIZZA) {
+//                cartItemDTO.setPizzaSize(cartItem.getPizzaSize());
+//                cartItemDTO.setCrustType(cartItem.getCrustType());
+//            } else if (product.getCategory() == Category.BEVERAGE) {
+//                cartItemDTO.setBeverageSize(cartItem.getBeverageSize());
+//            }
+//
+//            cartItemDTOs.add(cartItemDTO);
+//        }
+//
+//        cartDTO.setCartItems(cartItemDTOs);
+//
+//        return cartDTO;
+//    }
+
     public CartDTO addToCart(Long cartId, Long productId, int quantity, PizzaSize pizzaSize, CrustType crustType, BeverageSize beverageSize) {
         Optional<Cart> cartOpt = cartRepository.findById(cartId);
         if (!cartOpt.isPresent()) {
@@ -101,42 +198,51 @@ public class CartService {
 
         Cart cart = cartOpt.get();
         Optional<Products> productOpt = productsRepository.findById(productId);
-        if (!productOpt.isPresent()) {
-            throw new IllegalArgumentException("Product not found");
-        }
 
-        Products product = productOpt.get(); // This is the first declaration of 'product'
-        boolean itemExists = false;
+        if (productOpt.isPresent()) {
+            Products product = productOpt.get();
 
-        for (CartItem item : cart.getCartItems()) {
-            // Use 'item.getProduct()' to avoid shadowing 'product'
-            if (item.getProduct().getId().equals(productId) &&
-                    (product.getCategory() == Category.PIZZA && item.getPizzaSize() == pizzaSize && item.getCrustType() == crustType ||
-                            product.getCategory() == Category.BEVERAGE && item.getBeverageSize() == beverageSize)) {
-                item.setQuantity(item.getQuantity() + quantity);
-                item.setTotalPrice(product.getPrice().multiply(BigDecimal.valueOf(item.getQuantity())));
-                itemExists = true;
-                break;
+            if (product.getCategory() == Category.PIZZA) {
+                if (pizzaSize == null || crustType == null) {
+                    throw new IllegalArgumentException("Pizza requires size and crust type to be specified");
+                }
+            } else if (product.getCategory() == Category.BEVERAGE) {
+                if (beverageSize == null) {
+                    throw new IllegalArgumentException("Beverage requires size to be specified");
+                }
             }
+
+            boolean itemExists = false;
+            for (CartItem item : cart.getCartItems()) {
+                if (item.getProduct().getId().equals(productId) &&
+                        (product.getCategory() == Category.PIZZA && item.getPizzaSize() == pizzaSize && item.getCrustType() == crustType ||
+                                product.getCategory() == Category.BEVERAGE && item.getBeverageSize() == beverageSize)) {
+                    item.setQuantity(item.getQuantity() + quantity);
+                    item.setTotalPrice(product.getPrice().multiply(BigDecimal.valueOf(item.getQuantity())));
+                    itemExists = true;
+                    break;
+                }
+            }
+
+            if (!itemExists) {
+                CartItem newItem = new CartItem(product, quantity);
+                newItem.setCart(cart);
+                newItem.setPizzaSize(pizzaSize);
+                newItem.setCrustType(crustType);
+                newItem.setBeverageSize(beverageSize);
+                cart.getCartItems().add(newItem);
+            }
+
+            // Update totalAmount
+            cart.setTotalAmount(cart.getCartItems().stream()
+                    .map(CartItem::getTotalPrice)
+                    .reduce(BigDecimal.ZERO, BigDecimal::add));
+            cartRepository.save(cart);
         }
 
-        if (!itemExists) {
-            CartItem newItem = new CartItem(product, quantity);
-            newItem.setCart(cart);
-            newItem.setPizzaSize(pizzaSize);
-            newItem.setCrustType(crustType);
-            newItem.setBeverageSize(beverageSize);
-            cart.getCartItems().add(newItem);
-        }
-
-        cart.setTotalAmount(cart.getCartItems().stream()
-                .map(CartItem::getTotalPrice)
-                .reduce(BigDecimal.ZERO, BigDecimal::add));
-
-        cartRepository.save(cart);
-
+        // Convert Cart to CartDTO for the response
         CartDTO cartDTO = new CartDTO();
-       //cartDTO.setUserId(Long.valueOf(cart.getUser().getId())); // Convert Integer to Long
+       // cartDTO.setId(cart.getId());
         cartDTO.setTotalAmount(cart.getTotalAmount());
 
         List<CartItemDTO> cartItemDTOs = new ArrayList<>();
@@ -146,16 +252,17 @@ public class CartService {
             cartItemDTO.setQuantity(cartItem.getQuantity());
             cartItemDTO.setTotalPrice(cartItem.getTotalPrice());
 
+            // Set product details
             ProductDTO productDTO = new ProductDTO();
-            // Use 'product' here instead of redeclaring
+            Products product = cartItem.getProduct();
             productDTO.setId(product.getId());
             productDTO.setName(product.getName());
             productDTO.setPrice(product.getPrice());
             productDTO.setCategory(product.getCategory().toString());
             productDTO.setDescription(product.getDescription());
-
             cartItemDTO.setProduct(productDTO);
 
+            // Conditionally set pizza and beverage related fields
             if (product.getCategory() == Category.PIZZA) {
                 cartItemDTO.setPizzaSize(cartItem.getPizzaSize());
                 cartItemDTO.setCrustType(cartItem.getCrustType());
@@ -167,9 +274,9 @@ public class CartService {
         }
 
         cartDTO.setCartItems(cartItemDTOs);
-
         return cartDTO;
     }
+
 
 
     // Update cart with new quantity
