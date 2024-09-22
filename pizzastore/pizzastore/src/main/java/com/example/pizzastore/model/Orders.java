@@ -1,5 +1,7 @@
 package com.example.pizzastore.model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import java.math.BigDecimal;
@@ -16,6 +18,7 @@ public class Orders {
 
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
+
     private User user;
 
     @Temporal(TemporalType.TIMESTAMP)
@@ -38,6 +41,20 @@ public class Orders {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private DeliveryStatus deliveryStatus = DeliveryStatus.PENDING;
+
+    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL)
+    private List<Feedback> feedbacks = new ArrayList<>();
+
+    // Getters and Setters
+    public List<Feedback> getFeedbacks() {
+        return feedbacks;
+    }
+
+    public void setFeedbacks(List<Feedback> feedbacks) {
+        this.feedbacks = feedbacks;
+    }
+
+
 
     // Getters and Setters
 

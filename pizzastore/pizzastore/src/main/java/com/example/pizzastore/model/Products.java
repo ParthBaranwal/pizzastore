@@ -3,6 +3,8 @@ package com.example.pizzastore.model;
 import jakarta.persistence.*;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "Products")
@@ -28,6 +30,18 @@ public class Products {
 
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL)
+    private List<Feedback> feedbacks = new ArrayList<>();
+
+    // Getters and Setters
+    public List<Feedback> getFeedbacks() {
+        return feedbacks;
+    }
+
+    public void setFeedbacks(List<Feedback> feedbacks) {
+        this.feedbacks = feedbacks;
+    }
+
 
     // Constructors, Getters, and Setters
     public Products() {
