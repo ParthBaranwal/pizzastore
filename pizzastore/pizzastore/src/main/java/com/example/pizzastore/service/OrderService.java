@@ -1,6 +1,7 @@
 package com.example.pizzastore.service;
 
 import com.example.pizzastore.dto.DeliveryRequest;
+import com.example.pizzastore.dto.OrderDTO;
 import com.example.pizzastore.model.*;
 
 import com.example.pizzastore.repository.AddressRepository;
@@ -29,9 +30,21 @@ public class OrderService {
     public Orders findById(Long orderId) {
         return orderRepository.findById(orderId).orElse(null);
     }
-    public Orders getOrderById(Long orderId) {
-        return orderRepository.findById(orderId)
+    public OrderDTO getOrderById(Long orderId) {
+        Orders order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new RuntimeException("Order not found"));
+
+        // Create and populate OrderDTO
+        OrderDTO orderDTO = new OrderDTO();
+        orderDTO.setId(order.getId());
+        orderDTO.setOrderDate(order.getOrderDate());
+        orderDTO.setTotalAmount(order.getTotalAmount());
+        orderDTO.setItems(order.getItems());
+        orderDTO.setPaymentStatus(order.getPaymentStatus());
+        orderDTO.setDeliveryStatus(order.getDeliveryStatus());
+        orderDTO.setDeliveryAddress(order.getDeliveryAddress());
+
+        return orderDTO;
     }
 
 
@@ -60,7 +73,7 @@ public class OrderService {
     }
 
 
-    public Orders checkout(Long cartId) {
+    public OrderDTO checkout(Long cartId) {
         Cart cart = cartRepository.findById(cartId)
                 .orElseThrow(() -> new RuntimeException("Cart not found"));
 
@@ -69,13 +82,11 @@ public class OrderService {
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
 
         Orders order = new Orders();
-        order.setUser(cart.getUser());
+        order.setUser(cart.getUser()); // Keep the user for order processing
         order.setOrderDate(new Date());
         order.setTotalAmount(totalAmount);
-
-        // Set the payment status before saving
         order.setPaymentStatus(Payment.PaymentStatus.PENDING);
-        order.setDeliveryStatus(Orders.DeliveryStatus.PENDING);// Example default status
+        order.setDeliveryStatus(Orders.DeliveryStatus.PENDING); // Default status
 
         List<OrderItem> orderItems = cart.getCartItems().stream()
                 .map(cartItem -> {
@@ -95,8 +106,21 @@ public class OrderService {
         cart.setTotalAmount(BigDecimal.ZERO);
 
         cartRepository.save(cart);
-        return orderRepository.save(order);
+        Orders savedOrder = orderRepository.save(order);
+
+        // Create and populate OrderDTO
+        OrderDTO orderDTO = new OrderDTO();
+        orderDTO.setId(savedOrder.getId());
+        orderDTO.setOrderDate(savedOrder.getOrderDate());
+        orderDTO.setTotalAmount(savedOrder.getTotalAmount());
+        orderDTO.setItems(savedOrder.getItems());
+        orderDTO.setPaymentStatus(savedOrder.getPaymentStatus());
+        orderDTO.setDeliveryStatus(savedOrder.getDeliveryStatus());
+        orderDTO.setDeliveryAddress(savedOrder.getDeliveryAddress());
+
+        return orderDTO;
     }
+
 
 
     public List<Orders> getAllOrders() {

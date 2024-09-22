@@ -1,5 +1,6 @@
 package com.example.pizzastore.service;
 
+import com.example.pizzastore.dto.OrderDTO;
 import com.example.pizzastore.dto.PaymentRequest;
 import com.example.pizzastore.dto.PaymentResponse;
 import com.example.pizzastore.model.Orders;
@@ -31,19 +32,19 @@ public class PaymentService {
     }
 
     public PaymentResponse processPayment(PaymentRequest paymentRequest) {
-        Orders order = orderService.getOrderById(paymentRequest.getOrderId());
-        if (order == null) {
+        // Get the order DTO
+        OrderDTO orderDTO = orderService.getOrderById(paymentRequest.getOrderId());
+        if (orderDTO == null) {
             throw new IllegalArgumentException("Order not found");
         }
 
         // Check if delivery address is set
-        if (order.getDeliveryAddress() == null) {
+        if (orderDTO.getDeliveryAddress() == null) {
             throw new IllegalArgumentException("Delivery address is not set. Payment cannot be processed.");
         }
 
         Payment payment = new Payment();
-        payment.setOrder(order);
-        payment.setAmount(order.getTotalAmount());
+        payment.setAmount(orderDTO.getTotalAmount());
         payment.setPaymentMethod(paymentRequest.getPaymentMethod());
 
         PaymentDetails details = paymentRequest.getPaymentDetails();
@@ -79,8 +80,9 @@ public class PaymentService {
         Payment savedPayment = save(payment);
 
         // Update order payment status
-        orderService.updateOrderPaymentStatus(order.getId(), payment.getPaymentStatus());
+        orderService.updateOrderPaymentStatus(orderDTO.getId(), payment.getPaymentStatus());
 
         return new PaymentResponse(savedPayment.getId(), savedPayment.getPaymentStatus(), savedPayment.getPaymentTime());
     }
+
 }

@@ -2,6 +2,7 @@ package com.example.pizzastore.controller;
 
 import com.example.pizzastore.dto.CartDTO;
 import com.example.pizzastore.dto.CreateCartRequest;
+import com.example.pizzastore.dto.OrderDTO;
 import com.example.pizzastore.model.Cart;
 import com.example.pizzastore.model.CartItemRequest;
 import com.example.pizzastore.model.Orders;
@@ -22,10 +23,11 @@ public class CartController {
     private OrderService orderService;
 
     @PostMapping("/create")
-    public ResponseEntity<Cart> createCartForUser(@RequestBody CreateCartRequest createCartRequest) {
-        Cart cart = cartService.createCartForUser(createCartRequest.getUserId());
-        return ResponseEntity.ok(cart);
+    public ResponseEntity<CartDTO> createCartForUser(@RequestBody CreateCartRequest createCartRequest) {
+        CartDTO cartDTO = cartService.createCartForUser(createCartRequest.getUserId());
+        return ResponseEntity.ok(cartDTO);
     }
+
 
     @GetMapping("/{cartId}")
     public ResponseEntity<CartDTO> getCartById(@PathVariable Long cartId) {
@@ -67,8 +69,9 @@ public class CartController {
 
     }
     @PostMapping("/checkout/{cartId}")
-    public ResponseEntity<Orders> checkout(@PathVariable Long cartId) {
-        Orders order = orderService.checkout(cartId);
-        return ResponseEntity.ok(order);
+    public ResponseEntity<OrderDTO> checkout(@PathVariable Long cartId) {
+        OrderDTO orderDTO = orderService.checkout(cartId);
+        return ResponseEntity.ok(orderDTO);
     }
+
 }

@@ -1,6 +1,7 @@
 package com.example.pizzastore.controller;
 
 import com.example.pizzastore.dto.DeliveryRequest;
+import com.example.pizzastore.dto.OrderDTO;
 import com.example.pizzastore.model.Orders;
 import com.example.pizzastore.service.OrderService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,9 +19,10 @@ public class OrderController {
     private OrderService orderService;
 
     @GetMapping("/{orderId}")
-    public Orders getOrderById(@PathVariable Long orderId) {
-        return orderService.findById(orderId);
+    public OrderDTO getOrderById(@PathVariable Long orderId) {
+        return orderService.getOrderById(orderId);
     }
+
 
     @PostMapping("/{orderId}/delivery")
     public ResponseEntity<String> updateDeliveryDetails(
