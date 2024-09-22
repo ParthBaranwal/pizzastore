@@ -17,11 +17,11 @@ public class OrderController {
 
     @Autowired
     private OrderService orderService;
-
     @GetMapping("/{orderId}")
-    public OrderDTO getOrderById(@PathVariable Long orderId) {
+    public Orders getOrderById(@PathVariable Long orderId) {
         return orderService.getOrderById(orderId);
     }
+
 
 
     @PostMapping("/{orderId}/delivery")

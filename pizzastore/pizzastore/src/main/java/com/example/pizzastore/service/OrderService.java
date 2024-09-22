@@ -30,21 +30,9 @@ public class OrderService {
     public Orders findById(Long orderId) {
         return orderRepository.findById(orderId).orElse(null);
     }
-    public OrderDTO getOrderById(Long orderId) {
-        Orders order = orderRepository.findById(orderId)
-                .orElseThrow(() -> new RuntimeException("Order not found"));
-
-        // Create and populate OrderDTO
-        OrderDTO orderDTO = new OrderDTO();
-        orderDTO.setId(order.getId());
-        orderDTO.setOrderDate(order.getOrderDate());
-        orderDTO.setTotalAmount(order.getTotalAmount());
-        orderDTO.setItems(order.getItems());
-        orderDTO.setPaymentStatus(order.getPaymentStatus());
-        orderDTO.setDeliveryStatus(order.getDeliveryStatus());
-        orderDTO.setDeliveryAddress(order.getDeliveryAddress());
-
-        return orderDTO;
+    public Orders getOrderById(Long orderId) {
+        return orderRepository.findById(orderId)
+                .orElseThrow(() -> new RuntimeException("Ordernotfound"));
     }
 
 

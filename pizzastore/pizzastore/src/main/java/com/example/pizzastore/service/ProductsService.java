@@ -3,6 +3,7 @@ package com.example.pizzastore.service;
 import com.example.pizzastore.dto.ProductResponseDTO;
 import com.example.pizzastore.dto.ToppingDTO;
 import com.example.pizzastore.model.*;
+import com.example.pizzastore.repository.PizzaToppingRepository;
 import com.example.pizzastore.repository.ProductsRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -17,6 +18,9 @@ public class ProductsService {
 
     @Autowired
     private ProductsRepository productsRepository;
+
+    @Autowired
+    private PizzaToppingRepository pizzaToppingRepository;
 
     public List<Products> getAllProducts() {
 
@@ -68,12 +72,23 @@ public class ProductsService {
 
         if (product.getCategory() == Category.PIZZA) {
 
-            // Retrieve toppings
-            List<Products> toppings = productsRepository.findByCategory(Category.TOPPING);
+//            // Retrieve toppings
+//            List<Products> toppings = productsRepository.findByCategory(Category.TOPPING);
+//
+//            // Convert toppings to ToppingDTO
+//            List<ToppingDTO> toppingDTOs = toppings.stream()
+//                    .map(topping -> new ToppingDTO(topping.getId(), topping.getName(), topping.getPrice(), topping.getDescription()))
+//                    .collect(Collectors.toList());
+
+            // Retrieve toppings associated with the pizza
+            List<PizzaTopping> pizzaToppings = pizzaToppingRepository.findByPizza(product);
 
             // Convert toppings to ToppingDTO
-            List<ToppingDTO> toppingDTOs = toppings.stream()
-                    .map(topping -> new ToppingDTO(topping.getId(), topping.getName(), topping.getPrice(), topping.getDescription()))
+            List<ToppingDTO> toppingDTOs = pizzaToppings.stream()
+                    .map(pizzaTopping -> {
+                        Products topping = pizzaTopping.getTopping();
+                        return new ToppingDTO(topping.getId(), topping.getName(), topping.getPrice(), topping.getDescription());
+                    })
                     .collect(Collectors.toList());
 
             // Create response DTO for pizza
