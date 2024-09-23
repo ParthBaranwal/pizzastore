@@ -72,6 +72,53 @@ public class CartService {
         return cartDTO;
     }
 
+    public CartDTO getCartByUser(User user) {
+        // Assuming there's a method to find the cart by user in the repository
+        Optional<Cart> cartOpt = cartRepository.findByUser(user);
+
+        if (!cartOpt.isPresent()) {
+            throw new IllegalArgumentException("Cart not found for the user");
+        }
+
+        Cart cart = cartOpt.get();
+        return convertCartToCartDTO(cart); // Reuse your existing conversion logic
+    }
+
+    private CartDTO convertCartToCartDTO(Cart cart) {
+        CartDTO cartDTO = new CartDTO();
+        cartDTO.setTotalAmount(cart.getTotalAmount());
+
+        List<CartItemDTO> cartItemDTOs = new ArrayList<>();
+        for (CartItem cartItem : cart.getCartItems()) {
+            CartItemDTO cartItemDTO = new CartItemDTO();
+            cartItemDTO.setId(cartItem.getId());
+            cartItemDTO.setQuantity(cartItem.getQuantity());
+            cartItemDTO.setTotalPrice(cartItem.getTotalPrice());
+
+            ProductDTO productDTO = new ProductDTO();
+            Products product = cartItem.getProduct();
+            productDTO.setId(product.getId());
+            productDTO.setName(product.getName());
+            productDTO.setPrice(product.getPrice());
+            productDTO.setCategory(product.getCategory().toString());
+            productDTO.setDescription(product.getDescription());
+
+            cartItemDTO.setProduct(productDTO);
+
+            if (product.getCategory() == Category.PIZZA) {
+                cartItemDTO.setPizzaSize(cartItem.getPizzaSize());
+                cartItemDTO.setCrustType(cartItem.getCrustType());
+            } else if (product.getCategory() == Category.BEVERAGE) {
+                cartItemDTO.setBeverageSize(cartItem.getBeverageSize());
+            }
+
+            cartItemDTOs.add(cartItemDTO);
+        }
+
+        cartDTO.setCartItems(cartItemDTOs);
+        return cartDTO;
+    }
+
     // Create a new cart for a user
     public CartDTO createCartForUser(Long userId) {
         Optional<User> userOpt = userRepository.findById(userId);
