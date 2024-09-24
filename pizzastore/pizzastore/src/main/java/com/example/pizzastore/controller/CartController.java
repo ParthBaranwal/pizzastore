@@ -6,10 +6,14 @@ import com.example.pizzastore.dto.OrderDTO;
 import com.example.pizzastore.model.Cart;
 import com.example.pizzastore.model.CartItemRequest;
 import com.example.pizzastore.model.Orders;
+import com.example.pizzastore.model.User;
+import com.example.pizzastore.repository.UserRepository;
 import com.example.pizzastore.service.CartService;
 import com.example.pizzastore.service.OrderService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -22,6 +26,9 @@ public class CartController {
     @Autowired
     private OrderService orderService;
 
+    @Autowired
+    private UserRepository userRepository;
+
     @PostMapping("/create")
     public ResponseEntity<CartDTO> createCartForUser(@RequestBody CreateCartRequest createCartRequest) {
         CartDTO cartDTO = cartService.createCartForUser(createCartRequest.getUserId());
@@ -29,9 +36,19 @@ public class CartController {
     }
 
 
-    @GetMapping("/{cartId}")
-    public ResponseEntity<CartDTO> getCartById(@PathVariable Long cartId) {
-        CartDTO cartDTO = cartService.getCartById(cartId);
+    @GetMapping("/myCart")
+    public ResponseEntity<CartDTO> getCartByUser() {
+        // Step 1: Get the currently authenticated user's username
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String username = authentication.getName(); // Fetch the username from the JWT token or authentication
+
+        // Step 2: Fetch the user by username from the database
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        // Step 3: Fetch the cart by user
+        CartDTO cartDTO = cartService.getCartByUser(user);
+
         return ResponseEntity.ok(cartDTO);
     }
 
@@ -68,10 +85,15 @@ public class CartController {
 
 
     }
-    @PostMapping("/checkout/{cartId}")
-    public ResponseEntity<OrderDTO> checkout(@PathVariable Long cartId) {
-        OrderDTO orderDTO = orderService.checkout(cartId);
+    @PostMapping("/checkout")
+    public ResponseEntity<OrderDTO> checkout() {
+        // Step 1: Get the currently authenticated user's username
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String username = authentication.getName(); // Get the username from authentication
+
+        // Step 2: Call the order service to handle the checkout based on the user
+        OrderDTO orderDTO = orderService.checkout(username);
+
         return ResponseEntity.ok(orderDTO);
     }
-
 }

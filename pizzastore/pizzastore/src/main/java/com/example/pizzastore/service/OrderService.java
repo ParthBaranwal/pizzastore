@@ -7,6 +7,7 @@ import com.example.pizzastore.model.*;
 import com.example.pizzastore.repository.AddressRepository;
 import com.example.pizzastore.repository.CartRepository;
 import com.example.pizzastore.repository.OrderRepository;
+import com.example.pizzastore.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -26,6 +27,9 @@ public class OrderService {
 
     @Autowired
     private AddressRepository addressRepository;
+
+    @Autowired
+    private UserRepository userRepository;
 
     public Orders findById(Long orderId) {
         return orderRepository.findById(orderId).orElse(null);
@@ -61,9 +65,13 @@ public class OrderService {
     }
 
 
-    public OrderDTO checkout(Long cartId) {
-        Cart cart = cartRepository.findById(cartId)
-                .orElseThrow(() -> new RuntimeException("Cart not found"));
+    public OrderDTO checkout(String username) {
+
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        Cart cart = cartRepository.findByUser(user)
+                .orElseThrow(() -> new RuntimeException("Cart not found for the user"));
 
         BigDecimal totalAmount = cart.getCartItems().stream()
                 .map(CartItem::getTotalPrice)
